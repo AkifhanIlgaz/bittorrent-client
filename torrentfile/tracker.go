@@ -1,9 +1,6 @@
 package torrentfile
 
 import (
-	"encoding/binary"
-	"fmt"
-	"net"
 	"net/url"
 	"strconv"
 )
@@ -27,27 +24,4 @@ func (t *TorrentFile) buildTrackerUrl(peerId [20]byte, port uint16) (string, err
 	base.RawQuery = params.Encode()
 
 	return base.String(), nil
-}
-
-type Peer struct {
-	IP   net.IP
-	Port uint16
-}
-
-func Unmarshal(peersBin []byte) ([]Peer, error) {
-	const peerSize = 6
-	numPeers := len(peersBin) / peerSize
-	if len(peersBin)%peerSize != 0 {
-		err := fmt.Errorf("Received malformed peers")
-		return nil, err
-	}
-
-	peers := make([]Peer, numPeers)
-	for i := range numPeers {
-		offset := i * peerSize
-		peers[i].IP = net.IP(peersBin[offset : offset+4])
-		peers[i].Port = binary.BigEndian.Uint16(peersBin[offset+4 : offset+6])
-	}
-
-	return peers, nil
 }
